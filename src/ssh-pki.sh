@@ -273,9 +273,9 @@ ssh_pki_sign_key()
     ssh_pki_print 3 "Sign key [${KEY_NAME}] by [${CA_FILE}] for [${WEEKS}] weeks...\n"
 
     if [ $USERF -eq 1 ]; then
-        ssh-keygen -s ${CA_FILE} -I ${KEY_NOTE}--${CA_FILE} -n ${KEY_NAME} ${validity} ${FILE_NAME}.pub
+        ssh-keygen -s ${CA_FILE} -I ${KEY_NOTE}[${CA_FILE}] -n ${KEY_NAME} ${validity} ${FILE_NAME}.pub
     else
-        ssh-keygen -s ${CA_FILE} -I ${KEY_NOTE}--${CA_FILE} -h -n ${KEY_NAME} ${validity} ${FILE_NAME}.pub
+        ssh-keygen -s ${CA_FILE} -I ${KEY_NOTE}[${CA_FILE}] -h -n ${KEY_NAME} ${validity} ${FILE_NAME}.pub
     fi
 
     if [ $? -eq 0 ]; then
@@ -383,11 +383,13 @@ while getopts "c:u:h:s:y:b:n:" opt; do
     esac
 done
 
-if [ $NOTEF -ne 1 ] && [ $USERF -eq 1 ] && [ $SIGNF -eq 1 ]; then
-    ssh_pki_print 1 "Please input key note!"
-    exit 1
-else
-    KEY_NOTE=$KEY_NAME
+if [ $NOTEF -ne 1 ] && [ $SIGNF -eq 1 ]; then
+    if [ $USERF -eq 1 ]; then
+        ssh_pki_print 1 "Please input key note!"
+        exit 1
+    else
+        KEY_NOTE=$KEY_NAME
+    fi
 fi
 
 if [ $GENCAF -eq 1 ]; then
