@@ -146,11 +146,13 @@ fi
 if [ -f id_rsa-cert.pub ]; then
     mv id_rsa-cert.pub id_rsa-cert.pub.bak
 fi
+if [ -f known_hosts ]; then
+    cp known_hosts known_hosts.bak
+fi
 EOF
         echo "ln -s ${FILE_NAME} id_rsa" >> ${tempdir}/install.sh
         echo "ln -s ${FILE_NAME}.pub id_rsa.pub" >> ${tempdir}/install.sh
         echo "ln -s ${FILE_NAME}-cert.pub id_rsa-cert.pub" >> ${tempdir}/install.sh
-        echo "cp known_hosts known_hosts.bak" >> ${tempdir}/install.sh
         echo "echo -n \"@cert-authority * \" >> known_hosts" >> ${tempdir}/install.sh
         echo "cat ${peer_ca_file}.pub >> known_hosts" >> ${tempdir}/install.sh
     else
@@ -167,8 +169,8 @@ if [ `whoami` != "root" ]; then
     rm -rf $localdir
     exit 1
 fi
+
 EOF
-        echo "" >> ${tempdir}/install.sh
         echo "cp ${peer_ca_file}.pub /etc/ssh/" >> ${tempdir}/install.sh
         echo "cp ${FILE_NAME} /etc/ssh/" >> ${tempdir}/install.sh
         echo "cp ${FILE_NAME}.pub /etc/ssh/" >> ${tempdir}/install.sh
