@@ -180,6 +180,8 @@ EOF
         echo "cp ${FILE_NAME}.pub /etc/ssh/" >> ${tempdir}/install.sh
         echo "cp ${FILE_NAME}-cert.pub /etc/ssh/" >> ${tempdir}/install.sh
         echo "cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak" >> ${tempdir}/install.sh
+        echo "echo \"\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
+        echo "echo \"# ssh-pki set\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
         echo "echo \"TrustedUserCAKeys /etc/ssh/${peer_ca_file}.pub\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
         echo "echo \"HostCertificate /etc/ssh/${FILE_NAME}-cert.pub\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
     fi
