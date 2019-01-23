@@ -300,18 +300,19 @@ ssh_pki_check_num()
 
 ssh_pki_help()
 {
-    echo -e "\nDeer SSH PKI usage:"
+    ssh_pki_print 3 "\nDeer SSH PKI usage:"
     echo
-    echo -e "\t-c\tgen ca\t\tinput ca name"
-    echo -e "\t-u\tuser\t\tinput username(login name or authentication string)"
-    echo -e "\t-h\thost\t\tinput hostname(url or ip)"
+    echo -e "\t-c\tgen CA\t\tInput CA name."
+    echo -e "\t-u\tgen user\tInput username (login name or authentication string or filename)."
+    echo -e "\t-h\tgen host\tInput hostname (url or ip or filename)."
     echo
-    echo -e "\t-s\tsign\t\tinput ca file name"
+    echo -e "\t-s\tsign\t\tInput CA file name, conf file will read if CA file does not exist."
     echo
-    echo -e "\t-y\tyear\t\tinput years default is 1"
-    echo -e "\t-b\tkey bits\tinput key bits default is 2048"
+    echo -e "\t-y\tvalidity\tInput years, \"0\" means forever."
+    echo -e "\t-b\tkey bits\tInput key bits default is 2048."
     echo
-    echo -e "\t-n\tkey note\tnote use for record log"
+    echo -e "\t-n\tkey note\tNote use for record log, recommended host name of the key."
+    echo
 }
 
 
