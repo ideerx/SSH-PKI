@@ -273,9 +273,9 @@ ssh_pki_sign_key()
     ssh_pki_print 3 "Sign key [${KEY_NAME}] by [${CA_FILE}] for [${WEEKS}] weeks...\n"
 
     if [ $USERF -eq 1 ]; then
-        ssh-keygen -s ${CA_FILE} -I ${KEY_NAME}--${CA_FILE} -n ${KEY_NAME} ${validity} ${FILE_NAME}.pub
+        ssh-keygen -s ${CA_FILE} -I ${KEY_NOTE}--${CA_FILE} -n ${KEY_NAME} ${validity} ${FILE_NAME}.pub
     else
-        ssh-keygen -s ${CA_FILE} -I ${KEY_NAME}--${CA_FILE} -h -n ${KEY_NAME} ${validity} ${FILE_NAME}.pub
+        ssh-keygen -s ${CA_FILE} -I ${KEY_NOTE}--${CA_FILE} -h -n ${KEY_NAME} ${validity} ${FILE_NAME}.pub
     fi
 
     if [ $? -eq 0 ]; then
@@ -308,6 +308,8 @@ ssh_pki_help()
     echo
     echo -e "\t-y\tyear\t\tinput years default is 1"
     echo -e "\t-b\tkey bits\tinput key bits default is 2048"
+    echo
+    echo -e "\t-n\tkey note\tnote use for record log"
 }
 
 
@@ -318,6 +320,7 @@ USERF=0
 HOSTF=0
 SIGNF=0
 YEARF=0
+NOTEF=0
 
 YEARS=0
 
@@ -327,6 +330,7 @@ CA_FILE=""
 FILE_NAME=""
 USER_CA_FILE=""
 HOST_CA_FILE=""
+KEY_NOTE=""
 
 PROG_DIR=$0
 PROG_DIR=${PROG_DIR%/*}
@@ -338,7 +342,7 @@ if [ $# -lt 1 ]; then
     ssh_pki_help
     exit 1
 fi
-while getopts "c:u:h:s:y:b:" opt; do
+while getopts "c:u:h:s:y:b:n:" opt; do
     case $opt in
         c)
             GENCAF=1
@@ -368,12 +372,23 @@ while getopts "c:u:h:s:y:b:" opt; do
                 KEY_BIT=$OPTARG
             fi
             ;;
+        n)
+            NOTEF=1
+            KEY_NOTE=$OPTARG
+            ;;
         \?)
             ssh_pki_help
             exit 1
             ;;
     esac
 done
+
+if [ $NOTEF -ne 1 ] && [ $USERF -eq 1 ] && [ $SIGNF -eq 1 ]; then
+    ssh_pki_print 1 "Please input key note!"
+    exit 1
+else
+    KEY_NOTE=$KEY_NAME
+fi
 
 if [ $GENCAF -eq 1 ]; then
     ssh_pki_gen_ca
