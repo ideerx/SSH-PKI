@@ -69,8 +69,13 @@ ssh_pki_conf_get()
 
 ssh_pki_package()
 {
+    if [ $USERF -eq 1 ]; then
+        certype="USER"
+    else
+        certype="HOST"
+    fi
 
-    tempdir=${FILE_NAME}_PKG
+    tempdir=${FILE_NAME}_${certype}_PKG
     pkg_install=pkg_install.sh
     tgz=${FILE_NAME}.tgz
 
@@ -124,6 +129,8 @@ cat > ${tempdir}/install.sh << 'EOF'
 set -e
 
 EOF
+    echo "echo -e \"\\033[1;33mInstall $certype..\\033[0m\"" >> ${tempdir}/install.sh
+    echo "" >> ${tempdir}/install.sh
     if [ $USERF -eq 1 ]; then
         echo "Packaging user files."
         cp ${peer_ca_file}.pub $tempdir/
@@ -164,9 +171,6 @@ EOF
 cat >> ${tempdir}/install.sh << 'EOF'
 if [ `whoami` != "root" ]; then
     echo -e "\033[1;31mPlease run by root!\033[0m"
-    localdir=`pwd`
-    cd ..
-    rm -rf $localdir
     exit 1
 fi
 
@@ -335,8 +339,9 @@ USER_CA_FILE=""
 HOST_CA_FILE=""
 KEY_NOTE=""
 
-PROG_DIR=$0
-PROG_DIR=${PROG_DIR%/*}
+#PROG_DIR=$0
+#PROG_DIR=${PROG_DIR%/*}
+PROG_DIR=./
 CONF_FILE=${PROG_DIR}/ssh_pki.conf
 
 DATE=`date +%Y%m%d-%H%M%S`
@@ -386,6 +391,11 @@ while getopts "c:u:h:s:y:b:n:" opt; do
     esac
 done
 
+if [ $GENCAF -eq 1 ]; then
+    ssh_pki_gen_ca
+    exit 0
+fi
+
 if [ $NOTEF -ne 1 ] && [ $SIGNF -eq 1 ]; then
     if [ $USERF -eq 1 ]; then
         ssh_pki_print 1 "Please input key note!"
@@ -393,11 +403,6 @@ if [ $NOTEF -ne 1 ] && [ $SIGNF -eq 1 ]; then
     else
         KEY_NOTE=$KEY_NAME
     fi
-fi
-
-if [ $GENCAF -eq 1 ]; then
-    ssh_pki_gen_ca
-    exit 0
 fi
 
 if [ `expr $USERF + $HOSTF` -ne 1 ]; then
