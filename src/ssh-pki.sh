@@ -166,6 +166,14 @@ EOF
         echo "ln -s ${FILE_NAME}-cert.pub id_rsa-cert.pub" >> ${tempdir}/install.sh
         echo "echo -n \"@cert-authority * \" >> known_hosts" >> ${tempdir}/install.sh
         echo "cat ${peer_ca_file}.pub >> known_hosts" >> ${tempdir}/install.sh
+cat >> ${tempdir}/install.sh << 'EOF'
+echo -e "\033[1;31mPlease restart sshd\033[0m"
+echo "CentOS:"
+echo "sudo systemctl restart sshd"
+echo
+echo "Ubuntu:"
+echo "sudo /etc/init.d/ssh restart"
+EOF
     else
         echo "Packaging host files."
         cp ${peer_ca_file}.pub $tempdir/
