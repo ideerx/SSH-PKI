@@ -166,14 +166,6 @@ EOF
         echo "ln -s ${FILE_NAME}-cert.pub id_rsa-cert.pub" >> ${tempdir}/install.sh
         echo "echo -n \"@cert-authority * \" >> known_hosts" >> ${tempdir}/install.sh
         echo "cat ${peer_ca_file}.pub >> known_hosts" >> ${tempdir}/install.sh
-cat >> ${tempdir}/install.sh << 'EOF'
-echo -e "\033[1;31mPlease restart sshd\033[0m"
-echo "CentOS:"
-echo "sudo systemctl restart sshd"
-echo
-echo "Ubuntu:"
-echo "sudo /etc/init.d/ssh restart"
-EOF
     else
         echo "Packaging host files."
         cp ${peer_ca_file}.pub $tempdir/
@@ -196,6 +188,13 @@ EOF
         echo "echo \"# ssh-pki set\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
         echo "echo \"TrustedUserCAKeys /etc/ssh/${peer_ca_file}.pub\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
         echo "echo \"HostCertificate /etc/ssh/${FILE_NAME}-cert.pub\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
+cat >> ${tempdir}/install.sh << 'EOF'
+echo -e "\n\033[1;31mPlease restart ssh service!\033[0m"
+echo "CentOS:"
+echo "sudo systemctl restart sshd"
+echo "Ubuntu:"
+echo "sudo /etc/init.d/ssh restart"
+EOF
     fi
     echo "echo -e \"\\033[1;32mInstallation is complete!\\033[0m\"" >> ${tempdir}/install.sh
     chmod 755 ${tempdir}/install.sh
@@ -213,7 +212,11 @@ EOF
 ssh_pki_gen_key()
 {
     ssh_pki_print 3 "Gen new key [${KEY_NAME}]..."
-    FILE_NAME=${DATE}_${KEY_NAME}
+    if [ $USERF -eq 1 ]; then
+        FILE_NAME=${DATE}_${KEY_NAME}_for_${KEY_NOTE}
+    else
+        FILE_NAME=${DATE}_${KEY_NAME}
+    fi
 
     ssh-keygen -t rsa -C ${KEY_NAME} -b $KEY_BIT -f ${KEY_NAME}
     echo
