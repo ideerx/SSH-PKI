@@ -137,7 +137,11 @@ EOF
         mv ${FILE_NAME} $tempdir/
         mv ${FILE_NAME}.pub $tempdir/
         mv ${FILE_NAME}-cert.pub $tempdir/
-        echo "mkdir ~/.ssh/" >> ${tempdir}/install.sh
+cat >> ${tempdir}/install.sh << 'EOF'
+if [ ! -d ~/.ssh/ ]; then
+    mkdir ~/.ssh/
+fi
+EOF
         echo "cp ${peer_ca_file}.pub ~/.ssh/" >> ${tempdir}/install.sh
         echo "cp ${FILE_NAME} ~/.ssh/" >> ${tempdir}/install.sh
         echo "cp ${FILE_NAME}.pub ~/.ssh/" >> ${tempdir}/install.sh
