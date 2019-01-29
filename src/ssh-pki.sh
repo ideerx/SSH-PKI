@@ -270,19 +270,19 @@ ssh_pki_sign_key()
         else
             CA_FILE=`ssh_pki_conf_get host_ca_file`
         fi
-    fi
-    ret=$?
-    if [ $ret -eq 0 ]; then
-        ssh_pki_print 3 "CA file not exist. Do you want sign by [$CA_FILE]?"
-        read YN
-        case $YN in
-            n|no)
-                return
-                ;;
-        esac
-    else
-        ssh_pki_print 1 "[$ret]$CA_FILE"
-        exit 1
+        ret=$?
+        if [ $ret -eq 0 ]; then
+            ssh_pki_print 3 "CA file not exist. Do you want sign by [$CA_FILE]?"
+            read YN
+            case $YN in
+                n|no)
+                    return
+                    ;;
+            esac
+        else
+            ssh_pki_print 1 "[$ret]$CA_FILE"
+            exit 1
+        fi
     fi
 
     if [ ! -f $CA_FILE ]; then
