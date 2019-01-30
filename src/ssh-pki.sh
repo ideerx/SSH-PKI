@@ -107,6 +107,42 @@ else
 fi
 EOF
 
+cat > ${tempdir}/ssh-show-valid.sh << 'EOF'
+#!/bin/bash
+
+ssh-pki-show-valid()
+{
+    name=$1
+    cert=$2
+
+    enddate=`ssh-keygen -Lf $cert |grep "Valid:"`
+    enddate=${enddate##*to}
+    enddate=`date -d "$enddate" +%Y-%m-%d\ %H:%M:%S`
+    if [ `date -d "$enddate" +%s` -lt $((NOW_TIME + 2592000)) ]; then
+        c="\e[1;41m"
+        msg="Alert: Cert will out of date!"
+    else
+        c="\e[1;32m"
+        msg="Normally!"
+    fi
+    echo -e "${name} cert \e[1;33m[${cert}]\e[0m EndDate:"
+    echo -e "\e[${c}$enddate\t$msg\e[0m"
+}
+
+# Main
+NOW_TIME=`date +%s`
+USER_CERT=~/.ssh/id_rsa-cert.pub
+HOST_CERT=`grep "HostCertificate" /etc/ssh/sshd_config |tail -n 1 |awk '{print $2}'`
+
+echo -e "Show Certs enddate of SSH \e[1m[`date +%Y-%m-%d\ %H:%M:%S`]\e[0m"
+if [ -f $USER_CERT ]; then
+    ssh-pki-show-valid "User" $USER_CERT
+fi
+if [ -n "$HOST_CERT" ] && [ -f $HOST_CERT ]; then
+    ssh-pki-show-valid "Host" $HOST_CERT
+fi
+EOF
+
     ssh_pki_print 3 "Packaging..."
 
     if [ $USERF -eq 1 ]; then
@@ -130,6 +166,12 @@ set -e
 
 DATE=`date +%Y%m%d-%H%M%S`
 
+if [ ! -d ~/.ssh ]; then
+    mkdir -p ~/.ssh
+fi
+cp -f ssh-show-valid.sh ~/.ssh/
+chmod 755 ~/.ssh/ssh-show-valid.sh
+echo -e "\n~/.ssh/ssh-show-valid.sh" >> ~/.bashrc
 EOF
     echo "echo -e \"\\033[1;33mInstall $certype..\\033[0m\"" >> ${tempdir}/install.sh
     echo "" >> ${tempdir}/install.sh
