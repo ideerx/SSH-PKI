@@ -8,9 +8,11 @@ The ca_name must has string "user" or "host" like "ssh_pki_user_ca".
 
 ### Generate User Cert
 ./ssh-pki.sh -u user_name  
+The user_name must be the login name or authentication string.  
 
 ### Generate Host Cert
 ./ssh-pki.sh -h host_name  
+The host_name must be the host IP or URL.  
 
 ### Sign Cert
 ./ssh-pki.sh -u/-h user_file/host_file -s ca_file -y years  
