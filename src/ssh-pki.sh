@@ -187,6 +187,7 @@ EOF
         echo "echo \"\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
         echo "echo \"# ssh-pki set\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
         echo "echo \"TrustedUserCAKeys /etc/ssh/${peer_ca_file}.pub\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
+        echo "echo \"HostKey /etc/ssh/${FILE_NAME}\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
         echo "echo \"HostCertificate /etc/ssh/${FILE_NAME}-cert.pub\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
 cat >> ${tempdir}/install.sh << 'EOF'
 echo -e "\n\033[1;31mPlease restart ssh service!\033[0m"
