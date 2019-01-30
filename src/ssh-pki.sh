@@ -86,8 +86,8 @@ ssh_pki_package()
 
 cat > $pkg_install << 'EOF'
 #!/bin/bash
-
-tmpdir=/tmp/ssh-pki-upkg
+username=`whoami`
+tmpdir=/tmp/ssh-pki-${username}-upkg
 prog="${tmpdir}/install.sh"
 if [ -d $tmpdir ]; then
     rm -rf $tmpdir
@@ -128,11 +128,13 @@ cat > ${tempdir}/install.sh << 'EOF'
 
 set -e
 
+DATE=`date +%Y%m%d-%H%M%S`
+
 EOF
     echo "echo -e \"\\033[1;33mInstall $certype..\\033[0m\"" >> ${tempdir}/install.sh
     echo "" >> ${tempdir}/install.sh
     if [ $USERF -eq 1 ]; then
-        echo "Packaging user files."
+        echo "Packaging user files.."
         cp ${peer_ca_file}.pub $tempdir/
         mv ${FILE_NAME} $tempdir/
         mv ${FILE_NAME}.pub $tempdir/
@@ -142,6 +144,9 @@ if [ ! -d ~/.ssh/ ]; then
     mkdir ~/.ssh/
 fi
 EOF
+        echo "if [ -f ~/.ssh/${peer_ca_file}.pub ]; then" >> ${tempdir}/install.sh
+        echo "    mv ~/.ssh/${peer_ca_file}.pub ~/.ssh/${peer_ca_file}-${DATE}.pub" >> ${tempdir}/install.sh
+        echo "fi" >> ${tempdir}/install.sh
         echo "cp ${peer_ca_file}.pub ~/.ssh/" >> ${tempdir}/install.sh
         echo "cp ${FILE_NAME} ~/.ssh/" >> ${tempdir}/install.sh
         echo "cp ${FILE_NAME}.pub ~/.ssh/" >> ${tempdir}/install.sh
@@ -149,13 +154,13 @@ EOF
 cat >> ${tempdir}/install.sh << 'EOF'
 cd ~/.ssh/
 if [ -f id_rsa ]; then
-    mv id_rsa id_rsa.bak
+    mv id_rsa id_rsa-${DATE}.bak
 fi
 if [ -f id_rsa.pub ]; then
-    mv id_rsa.pub id_rsa.pub.bak
+    mv id_rsa.pub id_rsa.pub-${DATE}.bak
 fi
 if [ -f id_rsa-cert.pub ]; then
-    mv id_rsa-cert.pub id_rsa-cert.pub.bak
+    mv id_rsa-cert.pub id_rsa-cert.pub-${DATE}.bak
 fi
 if [ -f known_hosts ]; then
     cp known_hosts known_hosts.bak
@@ -167,7 +172,7 @@ EOF
         echo "echo -n \"@cert-authority * \" >> known_hosts" >> ${tempdir}/install.sh
         echo "cat ${peer_ca_file}.pub >> known_hosts" >> ${tempdir}/install.sh
     else
-        echo "Packaging host files."
+        echo "Packaging host files.."
         cp ${peer_ca_file}.pub $tempdir/
         mv ${FILE_NAME} $tempdir/
         mv ${FILE_NAME}.pub $tempdir/
@@ -183,7 +188,7 @@ EOF
         echo "cp ${FILE_NAME} /etc/ssh/" >> ${tempdir}/install.sh
         echo "cp ${FILE_NAME}.pub /etc/ssh/" >> ${tempdir}/install.sh
         echo "cp ${FILE_NAME}-cert.pub /etc/ssh/" >> ${tempdir}/install.sh
-        echo "cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak" >> ${tempdir}/install.sh
+        echo "cp /etc/ssh/sshd_config /etc/ssh/sshd_config-${DATE}.bak" >> ${tempdir}/install.sh
         echo "echo \"\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
         echo "echo \"# ssh-pki set\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
         echo "echo \"TrustedUserCAKeys /etc/ssh/${peer_ca_file}.pub\" >> /etc/ssh/sshd_config" >> ${tempdir}/install.sh
